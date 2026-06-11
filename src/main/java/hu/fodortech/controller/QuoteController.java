@@ -1,8 +1,12 @@
 package hu.fodortech.controller;
 
+import hu.fodortech.dto.AiRequest;
+import hu.fodortech.dto.AiResponse;
 import hu.fodortech.dto.CreateQuoteRequest;
+import hu.fodortech.dto.GenerateQuoteRequest;
 import hu.fodortech.dto.QuoteResponse;
 import hu.fodortech.entity.QuoteStatus;
+import hu.fodortech.service.AiService;
 import hu.fodortech.service.QuoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,9 +22,11 @@ import java.util.UUID;
 public class QuoteController {
 
     private final QuoteService quoteService;
+    private final AiService aiService;
 
-    public QuoteController(QuoteService quoteService) {
+    public QuoteController(QuoteService quoteService, AiService aiService) {
         this.quoteService = quoteService;
+        this.aiService = aiService;
     }
 
     @PostMapping
@@ -47,5 +53,14 @@ public class QuoteController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/generate")
+    @Operation(summary = "Generate quote with AI", description = "Generates a construction quote using AI based on input and client")
+    public ResponseEntity<QuoteResponse> generateQuote(@RequestBody GenerateQuoteRequest request) {
+        AiRequest aiRequest = new AiRequest(request.getInput());
+        AiResponse aiResponse = aiService.generateQuote(aiRequest);
+        QuoteResponse quoteResponse = quoteService.createQuoteFromAI(aiResponse, request.getClientId());
+        return ResponseEntity.ok(quoteResponse);
     }
 }

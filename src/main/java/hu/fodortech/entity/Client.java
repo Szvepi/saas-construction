@@ -19,17 +19,21 @@ public class Client {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String companyId;
+
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Quote> quotes;
 
     public Client() {
     }
 
-    public Client(Long id, String name, String phone, String email, List<Quote> quotes) {
+    public Client(Long id, String name, String phone, String email, String companyId, List<Quote> quotes) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.email = email;
+        this.companyId = companyId;
         this.quotes = quotes;
     }
 
@@ -63,6 +67,14 @@ public class Client {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 
     public List<Quote> getQuotes() {
